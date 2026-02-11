@@ -1,1 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Our Promise 💍</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,600&family=Montserrat:wght@300;400;500&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --text-primary: #2c1e1a;
+            --accent-gold: #c5a059;
+            --accent-rose: #d48795;
+        }
 
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: #fcf6f5;
+            font-family: 'Cormorant Garamond', serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: var(--text-primary);
+            user-select: none;
+        }
+
+        /* --- BACKGROUND ATMOSPHERE --- */
+        .ambient-light {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #fff5f6 0%, #eef2f3 100%);
+            z-index: -1;
+        }
+        
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out;
+        }
+        .orb-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #ffe0e6; }
+        .orb-2 { bottom: -10%; right: -10%; width: 400px; height: 400px; background: #e0f7fa; animation-delay: -5s; }
+
+        /* --- THE GLASS CARD --- */
+        .glass-card {
+            width: 85%;
+            max-width: 420px;
+            height: 75vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid white;
+            border-radius: 30px;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.05),
+                inset 0 0 0 1px rgba(255,255,255,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        /* --- SCREEN 1: THE SCANNER --- */
+        .scanner-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%; height: 100%;
+            position: absolute;
+            transition: opacity 0.8s ease;
+            z-index: 20;
+        }
+
+        .title {
+            font-size: 2.2rem;
+            font-weight: 400;
+            margin-bottom: 60px;
+            text-align: center;
+            line-height: 1.1;
+        }
+        .title span { font-style: italic; color: var(--accent-gold); display: block; margin-top: 5px;}
+
+        /* The Touch Area */
+        .touch-area {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .aura {
+            width: 50px; height: 50px;
+            background: radial-gradient(circle, #f8bbd0 0%, #f48fb1 100%);
+            border-radius: 50%;
+            filter: blur(15px);
+            animation: breathe 3s infinite ease-in-out;
+            transition: all 0.3s;
+        }
+
+        .touch-area:active .aura { transform: scale(0.8); background: #ad1457; }
+        .touch-area.holding .aura { transform: scale(2.5); background: #fff; opacity: 0.8; }
+
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.3); opacity: 0.3; } }
+
+        /* Progress Ring */
+        .progress-ring { position: absolute; top: -10px; left: -10px; transform: rotate(-90deg); pointer-events: none; }
+        .progress-ring__circle {
+            stroke: var(--accent-gold);
+            stroke-dasharray: 377; stroke-dashoffset: 377;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .instruction {
+            margin-top: 40px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #999;
+        }
+
+        /* --- SCREEN 2: THE PROMISES (Scrollable) --- */
+        .promise-view {
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%; height: 100%;
+            padding-top: 40px;
+            transform: translateY(20px);
+            transition: all 1s ease;
+        }
+
+        .promise-view.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+
+        .scroll-container {
+            width: 85%;
+            height: 100%;
+            overflow-y: auto;
+            padding-bottom: 60px; /* Space for signature */
+            scrollbar-width: none; /* Hide scrollbar Firefox */
+        }
+        .scroll-container::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome */
+
+        .vow-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 30px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .vow-block {
+            margin-bottom: 35px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+            border-left: 2px solid rgba(197, 160, 89, 0.3);
+            padding-left: 15px;
+        }
+        
+        .vow-block.show { opacity: 1; transform: translateY(0); }
+
+        .vow-text {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            color: #444;
+            font-weight: 400;
+        }
+
+        .highlight { color: var(--accent-gold); font-style: italic; font-weight: 600; }
+        .strong { color: #2c1e1a; font-weight: 600; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;}
+
+        /* Signature Footer */
+        .signature-footer {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            height: 80px;
+            background: linear-gradient(to top, rgba(255,255,255,1), rgba(255,255,255,0));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+            pointer-events: none;
+        }
+        .sig-text {
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.5rem;
+            color: #888;
+            margin-top: 20px;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        /* --- PARTICLES --- */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            background: white;
+            border-radius: 50%;
+            animation: floatUp 1.5s ease-out forwards;
+            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            z-index: 50;
+        }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-120px) scale(0); opacity: 0; } }
+        @keyframes float { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(20px, -20px); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="ambient-light">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <div class="glass-card">
+        
+        <div class="scanner-view" id="scanner">
+            <h1 class="title">To seal these<br><span>Promises...</span></h1>
+            
+            <div class="touch-area" id="touch-btn">
+                <div class="aura"></div>
+                <svg class="progress-ring" width="120" height="120">
+                    <circle class="progress-ring__circle" stroke="white" stroke-width="3" fill="transparent" r="60" cx="60" cy="60"/>
+                </svg>
+            </div>
+
+            <p class="instruction">Hold Your Thumb Here</p>
+        </div>
+
+        <div class="promise-view" id="promises">
+            <div class="vow-title">My Vows to You</div>
+            
+            <div class="scroll-container">
+                
+                <div class="vow-block">
+                    <span class="strong">The Choice</span>
+                    <div class="vow-text">
+                        I promise to stay... not just when it's easy, but when life gets hard, confusing & unfair. Because loving you isn't a one day promise. It's an <span class="highlight">everyday choice</span>.. And I choose you. ALWAYS AND FOREVER.
+                    </div>
+                </div>
+
+                <div class="vow-block">
+                    <span class="strong">The Growth</span>
+                    <div class="vow-text">
+                        I promise to listen when you talk, to notice the little things you don't say and to grow with you <span class="highlight">slowly, gently, consistently.</span>
+                    </div>
+                </div>
+
+                <div class="vow-block">
+                    <span class="strong">The Fight</span>
+                    <div class="vow-text">
+                        If I ever hurt you, talk to me instead of walking away. Arguments can't fix love, but <span class="highlight">patience and forgiveness</span> can. I promise to never let anger break the bond we share.
+                    </div>
+                </div>
+
+                <div class="vow-block">
+                    <span class="strong">The Responsibility</span>
+                    <div class="vow-text">
+                        I promise to communicate things so you never have to overthink. <span class="highlight">I care.</span>
+                    </div>
+                </div>
+
+                <div class="vow-block">
+                    <span class="strong">The Fix</span>
+                    <div class="vow-text">
+                        <span class="highlight">I promise to always be willing to fix things.</span> It just takes both of us to want it. I promise to stay with by you when you need me the most, because I'll always choose you, again and again and again...no mater the situation, hardships.
+                    </div>
+                </div>
+
+                <div style="height: 50px;"></div>
+            </div>
+
+            <div class="signature-footer">
+                <div class="sig-text" id="sig">Forever Yours, Bhushan</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- CONFIG ---
+        const holdTime = 3000; 
+        
+        // Elements
+        const btn = document.getElementById('touch-btn');
+        const circle = document.querySelector('.progress-ring__circle');
+        const scannerView = document.getElementById('scanner');
+        const promiseView = document.getElementById('promises');
+        const vows = document.querySelectorAll('.vow-block');
+
+        // State
+        let holding = false;
+        let progress = 0;
+        let interval;
+        let audioCtx;
+
+        // --- AUDIO ENGINE ---
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playTone() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(440 + (progress * 5), audioCtx.currentTime); // Pitch rises
+            gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function playSuccess() {
+            initAudio();
+            // Major chord arpeggio
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.type = 'triangle';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 4);
+                }, i * 150);
+            });
+        }
+
+        // --- VISUALS ---
+        const radius = circle.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function createParticle(x, y) {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            const size = Math.random() * 5 + 2;
+            p.style.width = `${size}px`;
+            p.style.height = `${size}px`;
+            p.style.left = `${x}px`;
+            p.style.top = `${y}px`;
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 1500);
+        }
+
+        // --- LOGIC ---
+        function startHold(e) {
+            e.preventDefault();
+            if(holding) return;
+            holding = true;
+            btn.classList.add('holding');
+            
+            let startTime = Date.now();
+            let particleTime = 0;
+
+            interval = setInterval(() => {
+                let elapsed = Date.now() - startTime;
+                progress = (elapsed / holdTime) * 100;
+                setProgress(progress);
+
+                // Audio feedback
+                if(Math.floor(progress) % 10 === 0 && Math.floor(progress) > 0) playTone();
+
+                // Particles
+                if(Date.now() - particleTime > 100) {
+                    const rect = btn.getBoundingClientRect();
+                    createParticle(
+                        rect.left + rect.width/2 + (Math.random()*40-20),
+                        rect.top + rect.height/2 + (Math.random()*40-20)
+                    );
+                    particleTime = Date.now();
+                }
+
+                if(progress >= 100) complete();
+            }, 16);
+        }
+
+        function endHold() {
+            if(!holding || progress >= 100) return;
+            holding = false;
+            clearInterval(interval);
+            progress = 0;
+            setProgress(0);
+            btn.classList.remove('holding');
+        }
+
+        function complete() {
+            clearInterval(interval);
+            playSuccess();
+            btn.classList.remove('holding');
+            
+            scannerView.style.opacity = '0';
+            setTimeout(() => {
+                scannerView.style.display = 'none';
+                revealPromises();
+            }, 800);
+        }
+
+        function revealPromises() {
+            promiseView.classList.add('active');
+            
+            // Waterfall animation for text
+            vows.forEach((vow, i) => {
+                setTimeout(() => vow.classList.add('show'), i * 800);
+            });
+            
+            setTimeout(() => {
+                document.getElementById('sig').style.opacity = '1';
+            }, vows.length * 800 + 500);
+        }
+
+        btn.addEventListener('mousedown', startHold);
+        btn.addEventListener('touchstart', startHold);
+        window.addEventListener('mouseup', endHold);
+        window.addEventListener('touchend', endHold);
+
+    </script>
+</body>
+</html>
